@@ -1,0 +1,160 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "RASC: Regenerate Project Content",
+      "type": "shell",
+      "command": "cmake -P cmake/prebuild.cmake",
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Configure (Debug)",
+      "type": "process",
+      "command": "cmake",
+      "args": [
+        "-S",
+        ".",
+        "-B",
+        "build/Debug",
+        "-G",
+        "Unix Makefiles",
+        "--toolchain",
+        "${workspaceFolder}/cmake/gcc.cmake",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DRENESAS_IDE=e2studio",
+        "-DCMAKE_MAKE_PROGRAM=C:/Users/Joel/.eide/bin/builder/msys/bin/make.exe"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Prepare BSP Linker Header (Debug)",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$gen = Get-ChildItem -Path '${workspaceFolder}/build' -Filter bsp_linker_info.h -Recurse | Select-Object -First 1; if (-not $gen) { throw 'bsp_linker_info.h not found. Run CMake: Configure (Debug) first.' }; $full = $gen.FullName.Replace('\\','/'); $ws = '${workspaceFolder}'.Replace('\\','/'); if ($full.StartsWith($ws + '/')) { $full = $full.Substring($ws.Length + 1) }; $line = '#include \"../' + $full + '\"'; Set-Content -Path '${workspaceFolder}/ra_gen/bsp_linker_info.h' -Value $line -Encoding ASCII"
+      ],
+      "dependsOn": [
+        "CMake: Configure (Debug)"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Prepare Linker Script Includes (Debug)",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$mr = Get-ChildItem -Path '${workspaceFolder}/build' -Filter memory_regions.ld -Recurse | Select-Object -First 1; $fg = Get-ChildItem -Path '${workspaceFolder}/build' -Filter fsp_gen.ld -Recurse | Select-Object -First 1; if ((-not $mr) -or (-not $fg)) { throw 'memory_regions.ld or fsp_gen.ld not found. Run CMake: Configure (Debug) first.' }; $ws='${workspaceFolder}'.Replace('\\','/'); $mrp=$mr.FullName.Replace('\\','/'); $fgp=$fg.FullName.Replace('\\','/'); if ($mrp.StartsWith($ws + '/')) { $mrp=$mrp.Substring($ws.Length + 1) }; if ($fgp.StartsWith($ws + '/')) { $fgp=$fgp.Substring($ws.Length + 1) }; @('/*','                  Linker File for Renesas FSP','*/','',('INCLUDE ' + $mrp),('INCLUDE ' + $fgp)) | Set-Content -Path '${workspaceFolder}/script/fsp.ld' -Encoding ASCII"
+      ],
+      "dependsOn": [
+        "CMake: Configure (Debug)"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Build (Debug)",
+      "type": "process",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build/Debug",
+        "--",
+        "-j"
+      ],
+      "dependsOn": [
+        "CMake: Prepare BSP Linker Header (Debug)",
+        "CMake: Prepare Linker Script Includes (Debug)"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Rebuild (Debug)",
+      "type": "process",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build/Debug",
+        "--target",
+        "clean"
+      ],
+      "dependsOn": [
+        "CMake: Configure (Debug)"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Rebuild Build (Debug)",
+      "type": "process",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "build/Debug",
+        "--",
+        "-j"
+      ],
+      "dependsOn": [
+        "CMake: Rebuild (Debug)",
+        "CMake: Prepare BSP Linker Header (Debug)",
+        "CMake: Prepare Linker Script Includes (Debug)"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "JLink: Flash ELF",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$scriptPath='${workspaceFolder}/.vscode/jlink_flash.auto.jlink'; $elf='${workspaceFolder}/build/Debug/${workspaceFolderBasename}.elf'; @('r','h',('loadfile ' + $elf),'r','g','exit') | Set-Content -Path $scriptPath -Encoding ASCII; & 'C:/Users/Joel/.eide/tools/jlink/JLink.exe' -device 'R7KA8P1KF' -if 'SWD' -speed 4000 -autoconnect 1 -CommanderScript $scriptPath"
+      ],
+      "dependsOn": [
+        "CMake: Build (Debug)"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build + Flash (Debug)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "CMake: Rebuild Build (Debug)",
+        "JLink: Flash ELF"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "First Time: Full Setup + Rebuild + Flash",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "CMake: Configure (Debug)",
+        "CMake: Prepare BSP Linker Header (Debug)",
+        "CMake: Prepare Linker Script Includes (Debug)",
+        "CMake: Rebuild Build (Debug)",
+        "JLink: Flash ELF"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Daily: Build + Flash (Fast)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "CMake: Build (Debug)",
+        "JLink: Flash ELF"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}
