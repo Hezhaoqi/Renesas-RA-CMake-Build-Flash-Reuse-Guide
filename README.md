@@ -14,9 +14,9 @@
 复制以下文件到你的工程：
 
 - `.vscode/tasks.json`
-- `README_VSCODE_BUILD_FLASH.md`（可选，用作团队说明文档）
+- `README_VSCODE_BUILD_FLASH.md`（可选，用作说明文档）
 
-不需要复制 `jlink_flash.jlink`。模板会在运行时自动生成 `.vscode/jlink_flash.auto.jlink`。
+模板会在运行时自动生成 `.vscode/jlink_flash.auto.jlink`。
 
 ## 2) 新工程需要满足什么
 
