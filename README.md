@@ -13,7 +13,7 @@
 
 复制以下文件到你的工程：
 
-- `.vscode/tasks.json`
+- `tasks.json`
 - `README_VSCODE_BUILD_FLASH.md`（可选，用作说明文档）
 
 模板会在运行时自动生成 `.vscode/jlink_flash.auto.jlink`。
