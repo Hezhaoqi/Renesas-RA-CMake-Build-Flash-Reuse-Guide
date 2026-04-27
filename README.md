@@ -2,6 +2,7 @@
 # (Renesas RA + CMake 可复用编译 + 下载模块
 
 这份模板面向 **Renesas RA + CMake** 工程，目标是让你在任意同类工程里快速复用「一键编译 + 一键烧录」流程。
+注: 本示例的工程由 Version: 2025-12 (25.12.0) 版本的e2 studio生成
 
 核心思路：
 
@@ -32,7 +33,7 @@
 默认 ELF 路径按 `${workspaceFolder}/build/Debug/${workspaceFolderBasename}.elf` 计算。  
 如果你的 ELF 名称不同，只改 `tasks.json` 里 `JLink: Flash ELF` 任务中的 `$elf=...` 一行。
 
-## 3) 两个一键任务怎么用
+## 3) 两个一键任务怎么用 (点击vscode窗口上方的终端 -> 运行任务)
 
 - `First Time: Full Setup + Rebuild + Flash`
   - 用于：首次接入、换电脑、换工具链、改 `configuration.xml`、大版本切换后
@@ -50,7 +51,7 @@
 - `-device`（芯片型号）
 - `-if`（`SWD`/`JTAG`）
 
-如果该电脑的 `make.exe` 路径不同，再改 `CMake: Configure (Debug)` 里的：
+如果该电脑的 `CMake.exe` 路径不同，再改 `CMake: Configure (Debug)` 里的：
 
 - `-DCMAKE_MAKE_PROGRAM=...`
 
