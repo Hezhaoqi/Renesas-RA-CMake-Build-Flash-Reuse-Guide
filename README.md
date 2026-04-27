@@ -81,7 +81,7 @@
 - `_read/_write/_close is not implemented`
   - `nosys` 常见 warning，一般不影响生成和下载。
 
-## 7) 推荐团队使用方式
+## 7) 推荐的使用方式
 
 - 首次编译：用 `First Time`
 - 日常开发：用 `Daily`
