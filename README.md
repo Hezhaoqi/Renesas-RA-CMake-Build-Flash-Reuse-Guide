@@ -11,7 +11,7 @@
 
 ## 1) 你需要复制什么
 
-复制以下文件到你的工程：
+复制以下文件到你的工程中的.vscode文件夹下：
 
 - `tasks.json`
 - `README_VSCODE_BUILD_FLASH.md`（可选，用作说明文档）
